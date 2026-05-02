@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/ismailcanuslu/ayws-gateway/config"
+	"github.com/rs/zerolog/log"
 	"github.com/valyala/fasthttp"
 )
 
@@ -37,6 +38,13 @@ func (rp *ReverseProxy) Handler(c *fiber.Ctx) error {
 	path := c.Path()
 	upstream, err := rp.matchUpstream(path)
 	if err != nil {
+		c.Locals("gateway_error", err.Error())
+		log.Warn().
+			Str("path", path).
+			Str("uri", string(c.Request().RequestURI())).
+			Str("method", c.Method()).
+			Err(err).
+			Msg("proxy: eşleşen route yok")
 		return c.Status(fiber.StatusBadGateway).JSON(fiber.Map{
 			"error": "upstream bulunamadı",
 		})
@@ -56,6 +64,9 @@ func (rp *ReverseProxy) Handler(c *fiber.Ctx) error {
 	req.SetRequestURI(targetURL)
 	req.Header.SetHostBytes([]byte(extractHost(upstream)))
 
+	c.Locals("proxy_upstream", upstream)
+	c.Locals("proxy_target", targetURL)
+
 	// X-Forwarded-For ekle
 	req.Header.Set("X-Forwarded-For", c.IP())
 	req.Header.Set("X-Forwarded-Proto", "http")
@@ -70,6 +81,14 @@ func (rp *ReverseProxy) Handler(c *fiber.Ctx) error {
 
 	// İsteği gönder
 	if err := rp.client.Do(req, resp); err != nil {
+		c.Locals("gateway_error", err.Error())
+		log.Error().
+			Str("method", c.Method()).
+			Str("path", path).
+			Str("upstream", upstream).
+			Str("target", targetURL).
+			Err(err).
+			Msg("proxy: upstream bağlantı/okuma hatası")
 		return c.Status(fiber.StatusBadGateway).JSON(fiber.Map{
 			"error": "upstream'e bağlanılamadı: " + err.Error(),
 		})

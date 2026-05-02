@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/ismailcanuslu/ayws-gateway/config"
+	"github.com/rs/zerolog/log"
 )
 
 // ipEntry, bir IP için istek sayısını ve pencere başlangıcını tutar.
@@ -54,6 +55,15 @@ func RateLimit() fiber.Handler {
 		entry.count++
 		if entry.count > rl.maxReqs {
 			rl.mu.Unlock()
+			c.Locals("gateway_error", "rate_limit_exceeded")
+			log.Warn().
+				Str("component", "gateway").
+				Str("event", "rate_limit").
+				Str("ip", ip).
+				Int("count", entry.count).
+				Int("max", rl.maxReqs).
+				Str("path", c.Path()).
+				Msg("istek sınırı aşıldı")
 			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{
 				"error": "Çok fazla istek. Lütfen bekleyiniz.",
 			})

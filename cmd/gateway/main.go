@@ -30,10 +30,11 @@ func main() {
 		log.Fatal().Err(err).Msg("config yüklenemedi")
 	}
 
-	log.Info().
-		Int("port", cfg.Server.Port).
-		Int("routes", len(cfg.Routes)).
-		Msg("ayws-gateway başlatılıyor")
+	prefixes := make([]string, 0, len(cfg.Routes))
+	for _, r := range cfg.Routes {
+		prefixes = append(prefixes, r.Prefix+" → "+r.Upstream)
+	}
+	middleware.LogStartup(cfg.Server.Port, prefixes)
 
 	middleware.InitRateLimit(&cfg.RateLimit)
 
