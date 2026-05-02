@@ -1,0 +1,33 @@
+server:
+  port: 8000
+  read_timeout: 30s
+  write_timeout: 30s
+  body_limit: 4   # MB
+
+keycloak:
+  base_url: http://localhost:8080
+  # JWKS endpoint: <base_url>/realms/<realm>/protocol/openid-connect/certs
+  # token'ın 'iss' claim'inden realm dinamik okunur — multi-tenant
+  jwks_ttl: 300   # saniye — public key'ler ne kadar önbelleklenir
+
+rate_limit:
+  requests_per_second: 100
+  burst: 200
+  expiration: 60  # saniye — pencere süresi
+
+routes:
+  - prefix: /api/auth
+    upstream: http://localhost:5001
+    public: true          # JWT doğrulama atlanır
+  - prefix: /realms
+    upstream: http://localhost:8080
+    public: true          # Keycloak token endpoint — JWT doğrulama atlanır
+  - prefix: /api/tenants
+    upstream: http://localhost:5001
+    public: false
+  - prefix: /api/users
+    upstream: http://localhost:5001
+    public: false         # Bearer token zorunlu
+  - prefix: /api/compute
+    upstream: http://localhost:8001
+    public: false         # Bearer token zorunlu

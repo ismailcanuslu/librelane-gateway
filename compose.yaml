@@ -1,0 +1,11 @@
+services:
+  gateway:
+    build: .
+    container_name: librelane-gateway
+    restart: always
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
