@@ -31,16 +31,7 @@ func Setup(cfg *config.Config) *fiber.App {
 	app.Use(middleware.CORS())
 	app.Use(middleware.RateLimit())
 
-	// ── Public route prefix'lerini topla ─────────────────────────────────────
-	var publicPrefixes []string
-	for _, r := range cfg.Routes {
-		if r.Public {
-			publicPrefixes = append(publicPrefixes, r.Prefix)
-		}
-	}
-
-	// ── Auth middleware (public route'lar hariç) ──────────────────────────────
-	app.Use(middleware.Auth(publicPrefixes))
+	app.Use(middleware.Auth())
 
 	// ── Health (gateway kendi endpoint'i) ────────────────────────────────────
 	app.Get("/health", handler.Health)

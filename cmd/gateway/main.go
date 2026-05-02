@@ -35,8 +35,6 @@ func main() {
 		Int("routes", len(cfg.Routes)).
 		Msg("ayws-gateway başlatılıyor")
 
-	// ── Middleware başlangıç ──────────────────────────────────────────────────
-	middleware.InitAuth(&cfg.Keycloak)
 	middleware.InitRateLimit(&cfg.RateLimit)
 
 	// ── Fiber app ────────────────────────────────────────────────────────────

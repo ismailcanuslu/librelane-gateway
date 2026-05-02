@@ -1,40 +1,14 @@
 server:
   port: 8000
-  # Büyük gövde (2GB) ve yavaş bağlantılar için — 30s çoğu yüklemede keser
   read_timeout: 2h
   write_timeout: 2h
-  body_limit: 2048   # MB (maks. istek gövdesi)
-
-keycloak:
-  base_url: http://localhost:8080
-  # JWKS endpoint: <base_url>/realms/<realm>/protocol/openid-connect/certs
-  # token'ın 'iss' claim'inden realm dinamik okunur — multi-tenant
-  jwks_ttl: 300   # saniye — public key'ler ne kadar önbelleklenir
+  body_limit: 2048   # MB
 
 rate_limit:
   requests_per_second: 100
   burst: 200
-  expiration: 60  # saniye — pencere süresi
+  expiration: 60
 
 routes:
-  # Go file microservice (MinIO proxy) — path'ler /buckets ile başlar
-  # Docker ağında: http://file-service:8080  |  yerel: http://localhost:8080
-  # public: false → istemci Bearer token göndermeli (web BFF Authorization iletir)
   - prefix: /buckets
     upstream: http://localhost:8080
-    public: false
-  - prefix: /api/auth
-    upstream: http://localhost:5001
-    public: true          # JWT doğrulama atlanır
-  - prefix: /realms
-    upstream: http://localhost:8080
-    public: true          # Keycloak token endpoint — JWT doğrulama atlanır
-  - prefix: /api/tenants
-    upstream: http://localhost:5001
-    public: false
-  - prefix: /api/users
-    upstream: http://localhost:5001
-    public: false         # Bearer token zorunlu
-  - prefix: /api/compute
-    upstream: http://localhost:8001
-    public: false         # Bearer token zorunlu

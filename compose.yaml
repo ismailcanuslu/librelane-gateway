@@ -1,6 +1,6 @@
 services:
   gateway:
-    image:
+    image: ghcr.io/ismailcanuslu/librelane-gateway:latest
     restart: unless-stopped
     container_name: librelane-gateway
     networks:

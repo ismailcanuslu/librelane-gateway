@@ -10,7 +10,6 @@ import (
 // Config tüm gateway konfigürasyonunu tutar.
 type Config struct {
 	Server    ServerConfig    `mapstructure:"server"`
-	Keycloak  KeycloakConfig  `mapstructure:"keycloak"`
 	RateLimit RateLimitConfig `mapstructure:"rate_limit"`
 	Routes    []RouteConfig   `mapstructure:"routes"`
 }
@@ -22,11 +21,6 @@ type ServerConfig struct {
 	BodyLimit    int           `mapstructure:"body_limit"`
 }
 
-type KeycloakConfig struct {
-	BaseURL  string `mapstructure:"base_url"`
-	JwksTTL int    `mapstructure:"jwks_ttl"` // saniye
-}
-
 type RateLimitConfig struct {
 	RequestsPerSecond int `mapstructure:"requests_per_second"`
 	Burst             int `mapstructure:"burst"`
@@ -36,7 +30,6 @@ type RateLimitConfig struct {
 type RouteConfig struct {
 	Prefix   string `mapstructure:"prefix"`
 	Upstream string `mapstructure:"upstream"`
-	Public   bool   `mapstructure:"public"`
 }
 
 // Load, config/gateway.yaml dosyasını (ve env değişkenlerini) okur.
