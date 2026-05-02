@@ -3,6 +3,7 @@ package proxy
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/ismailcanuslu/ayws-gateway/config"
@@ -23,8 +24,9 @@ func New(routes []config.RouteConfig) *ReverseProxy {
 			// Bağlantı havuzu — yüksek eşzamanlılık için
 			MaxConnsPerHost:     512,
 			MaxIdleConnDuration: 10 * 1e9, // 10s
-			ReadTimeout:         30 * 1e9, // 30s
-			WriteTimeout:        30 * 1e9,
+			// Büyük dosya upload/download — gateway body_limit ile uyumlu
+			ReadTimeout:  2 * time.Hour,
+			WriteTimeout: 2 * time.Hour,
 		},
 	}
 }

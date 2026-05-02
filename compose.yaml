@@ -1,11 +1,11 @@
 services:
   gateway:
-    build: .
+    image:
+    restart: unless-stopped
     container_name: librelane-gateway
-    restart: always
     networks:
-      - proxy
+      - librelane-network
 
 networks:
-  proxy:
+  librelane-network:
     external: true
