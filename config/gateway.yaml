@@ -11,4 +11,4 @@ rate_limit:
 
 routes:
   - prefix: /buckets
-    upstream: http://localhost:8080
+    upstream: http://go-file-service:8080
