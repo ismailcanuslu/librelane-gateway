@@ -9,6 +9,19 @@ rate_limit:
   burst: 200
   expiration: 60
 
+# Streaming path'ler (örn. SSE /run/.../stream) fasthttp yerine net/http reverse
+# proxy üzerinden gider; aksi halde response chunk'ları bufferlanır.
+streaming_paths:
+  - /run/*/stream
+
 routes:
-  - prefix: /buckets
-    upstream: http://go-file-service:8080
+  - prefix: /workspace
+    upstream: http://librelane-backend:8001
+  - prefix: /run
+    upstream: http://librelane-backend:8001
+  - prefix: /jobs
+    upstream: http://librelane-backend:8001
+  - prefix: /tools
+    upstream: http://librelane-backend:8001
+  - prefix: /ai
+    upstream: http://librelane-backend:8001

@@ -16,6 +16,9 @@ func Setup(cfg *config.Config) *fiber.App {
 		ReadTimeout:  cfg.Server.ReadTimeout,
 		WriteTimeout: cfg.Server.WriteTimeout,
 		BodyLimit:    cfg.Server.BodyLimit * 1024 * 1024, // MB → byte
+		// Streaming response'lar için header'ları erkenden gönder.
+		StreamRequestBody:  true,
+		DisableKeepalive:   false,
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			code := fiber.StatusInternalServerError
 			if e, ok := err.(*fiber.Error); ok {
@@ -41,12 +44,23 @@ func Setup(cfg *config.Config) *fiber.App {
 
 	// ── Reverse Proxy ─────────────────────────────────────────────────────────
 	rp := proxy.New(cfg.Routes)
+	streamRP := proxy.NewStreamingProxy(cfg.Routes)
+	streamingPatterns := cfg.StreamingPaths
+
+	// Dispatcher: streaming path'i net/http reverse proxy'ye, geri kalanını
+	// mevcut fasthttp proxy'ye gönderir.
+	dispatcher := func(c *fiber.Ctx) error {
+		if proxy.IsStreamingPath(c.Path(), streamingPatterns) {
+			return streamRP.Handler(c)
+		}
+		return rp.Handler(c)
+	}
 
 	for _, route := range cfg.Routes {
 		prefix := route.Prefix
 		// Hem /api/auth hem /api/auth/* yakala
-		app.All(prefix, rp.Handler)
-		app.All(withWildcard(prefix), rp.Handler)
+		app.All(prefix, dispatcher)
+		app.All(withWildcard(prefix), dispatcher)
 	}
 
 	return app

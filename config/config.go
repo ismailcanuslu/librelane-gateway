@@ -9,9 +9,10 @@ import (
 
 // Config tüm gateway konfigürasyonunu tutar.
 type Config struct {
-	Server    ServerConfig    `mapstructure:"server"`
-	RateLimit RateLimitConfig `mapstructure:"rate_limit"`
-	Routes    []RouteConfig   `mapstructure:"routes"`
+	Server         ServerConfig    `mapstructure:"server"`
+	RateLimit      RateLimitConfig `mapstructure:"rate_limit"`
+	Routes         []RouteConfig   `mapstructure:"routes"`
+	StreamingPaths []string        `mapstructure:"streaming_paths"`
 }
 
 type ServerConfig struct {

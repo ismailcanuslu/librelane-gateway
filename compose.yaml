@@ -1,10 +1,25 @@
+# Reverse proxy — upstream’ler config/gateway.yaml (örn. /workspace → librelane-backend:8001).
+#
+# librelane-network üzerinde komşular (container_name / DNS):
+#   - librelane-backend:8001
+#   - librelane-web:3000
+# Host üzerinden: curl http://127.0.0.1:8000/workspace/projects
+#
+# Önce: docker network create librelane-network
+
 services:
   gateway:
-    image: ghcr.io/ismailcanuslu/librelane-gateway:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     container_name: librelane-gateway
     networks:
       - librelane-network
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 networks:
   librelane-network:
